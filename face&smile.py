@@ -1,7 +1,7 @@
 import cv2
 import pandas as pd
 from _datetime import datetime
-
+Id = input('Enter Id')
 face_classifier = cv2.CascadeClassifier('cascade.xml')
 smile_classifier = cv2.CascadeClassifier('Haar_smile.xml')
 times = []
@@ -26,15 +26,16 @@ while 1:
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(img, 'Smile meter : ' + sm_ratio, (10, 50), font, 1, (200, 255, 155), 2, cv2.LINE_AA)
             if float(sm_ratio) > 1.8:
-                smile_ratios.append(float(sm_ratio))
-                times.append(datetime.now())
-                cv2.imwrite('C:/Users/My Lappy/Pictures/Saved Pictures/smile.jpg', img)
+                cv2.imwrite('C:/Users/My Lappy/Pictures/Saved Pictures/'+Id+'.jpg', img)
     cv2.imshow('Smile Detector', img)
     if cv2.waitKey(1) & 0xFF == ord(' '):
         break
-
-ds = {'smile_ratio': smile_ratios, 'times': times}
+smile_ratios.append(float(sm_ratio))
+times.append(datetime.now())
+ds = {'ID': Id, 'smile_ratio': smile_ratios, 'times': times}
 df = pd.DataFrame(ds)
-df.to_csv('smile_records.xlsx')
+with open('smile_records.csv', 'a') as csvFile:
+    df.to_csv(csvFile, header=False, index=False)
+csvFile.close()
 cap.release()
 cv2.destroyAllWindows()
