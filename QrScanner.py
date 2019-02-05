@@ -8,12 +8,12 @@ import cv2
 print("[INFO] starting video stream...")
 vs = VideoStream(src=0).start()
 time.sleep(2.0)
+text = ''
 # loop over the frames from the video stream
 while True:
     # grab the frame from the threaded video stream and resize it to
     frame = vs.read()
     frame = imutils.resize(frame, width=600)
-
     # find the barcodes in the frame and decode each of the barcodes
     barcodes = pyzbar.decode(frame)
     # loop over the detected barcodes
@@ -30,18 +30,14 @@ while True:
 
         # draw the barcode data and barcode type on the image
         text = "{} ({})".format(barcodeData, barcodeType)
+
         cv2.putText(frame, text, (x, y - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-
-        # if the barcode text is currently not in our CSV file, write
-        # the timestamp + barcode to disk and update the set
-    # show the output frame
     cv2.imshow("Barcode Scanner", frame)
-    # if the `q` key was pressed, break from the loop
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord(" "):
+    cv2.waitKey(1) #& 0xFF == ord(' '):
+    #If text contains Data Loop will break
+    if text != "":
         break
-# close the output CSV file do a bit of cleanup
-print("[INFO] cleaning up...")
+print(text)
 cv2.destroyAllWindows()
 vs.stop()
