@@ -7,12 +7,14 @@ from pyzbar import pyzbar
 import imutils
 import time
 
+
 class QRScannerAndSmile:
-    def QR(self):
+    @staticmethod
+    def qr():
         # initialize the video stream and allow the camera sensor to warm up
+        global text, eid, name
         vs = VideoStream(src=0).start()
         time.sleep(2.0)
-        global text, eid, name
         text = ''
         # loop over the frames from the video stream
         while True:
@@ -20,9 +22,9 @@ class QRScannerAndSmile:
             frame = vs.read()
             frame = imutils.resize(frame, width=600)
             # find the QrCodes in the frame and decode each of the barcodes
-            QrCodes= pyzbar.decode(frame)
+            QrCodes = pyzbar.decode(frame)
             cv.putText(frame, 'SHOW QR CODE', (200, 400), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv.LINE_AA)
-            # loop over the detected barcodes
+            # loop over the detected QRcodes
             for QrCode in QrCodes:
                 # extract the bounding box location of the barcode and draw
                 # the bounding box surrounding the barcode on the image
@@ -31,28 +33,31 @@ class QRScannerAndSmile:
                 # the barcode data is a bytes object so if we want to draw it
                 # on our output image we need to convert it to a string first
                 qrcodeData = QrCode.data.decode("utf-8")
-                #qrcodeData = QrCode.type
-                #show QrCode data
+                # qrcodeData = QrCode.type
+                # show QrCode data
                 text = "{}".format(qrcodeData)
                 cv.putText(frame, text, (x, y - 10),
                            cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
-            cv.imshow("Barcode Scanner", frame)
-            #if cv.waitKey(1) & 0xFF == ord(' '):
-            #If text contains Data Loop will break
+            cv.imshow("QR Code Scanner", frame)
+            # if cv.waitKey(1) & 0xFF == ord(' '):
+            # If text contains Data Loop will break
             if cv.waitKey(1) and text != "":
-                winsound.PlaySound("C:\\Users\\suraj_kumar\\PycharmProjects\\Demo\\camera-shutter.wav", winsound.SND_ASYNC | winsound.SND_ALIAS)
+                winsound.PlaySound("C:\\Users\\suraj_kumar\\PycharmProjects\\Demo\\camera-shutter.wav",
+                                   winsound.SND_ASYNC | winsound.SND_ALIAS)
                 break
-        #print(text)
+        # print(text)
         name = text.split('\n')[0]
         eid = text.split('\n')[1]
         print(name + " " + eid)
+        cv.destroyWindow("QR Code Scanner")
         vs.stop()
-        cv.destroyWindow("Barcode Scanner")
-    def main(self):
+
+    @staticmethod
+    def faceandsmile():
         Id = eid
-        #print("in smile")
-        #print(Id)
+        # print("in smile")
+        # print(Id)
         face_classifier = cv.CascadeClassifier('C:\\Users\\suraj_kumar\\PycharmProjects\\Demo\\face_cascade.xml')
         smile_classifier = cv.CascadeClassifier('C:\\Users\\suraj_kumar\\PycharmProjects\\Demo\\Haar_smile.xml')
         times = []
@@ -97,7 +102,13 @@ class QRScannerAndSmile:
         csvFile.close()
         cv.destroyAllWindows()
         cap.release()
-obj = QRScannerAndSmile()
-obj.QR()
-obj.main()
+
+    def call(self):
+        QRScannerAndSmile.qr()
+        QRScannerAndSmile.faceandsmile()
+
+#obj = QRScannerAndSmile()
+#obj.call()
+
+
 
