@@ -6,13 +6,14 @@ from imutils.video import VideoStream
 from pyzbar import pyzbar
 import imutils
 import time
+from MysqlConnection import insertdata
 
 
 class QRScannerAndSmile:
     @staticmethod
     def qr():
         # initialize the video stream and allow the camera sensor to warm up
-        global text, eid, name
+        global text, eid, name,  pic
         vs = VideoStream(src=0).start()
         time.sleep(2.0)
         text = ''
@@ -43,7 +44,7 @@ class QRScannerAndSmile:
             # if cv.waitKey(1) & 0xFF == ord(' '):
             # If text contains Data Loop will break
             if cv.waitKey(1) and text != "":
-                winsound.PlaySound("C:\\Users\\suraj_kumar\\PycharmProjects\\Demo\\camera-shutter.wav",
+                winsound.PlaySound("C:\\Users\\My Lappy\\PycharmProjects\\Test\\camera-shutter.wav",
                                    winsound.SND_ASYNC | winsound.SND_ALIAS)
                 break
         # print(text)
@@ -58,9 +59,9 @@ class QRScannerAndSmile:
         Id = eid
         # print("in smile")
         # print(Id)
-        face_classifier = cv.CascadeClassifier('C:\\Users\\suraj_kumar\\PycharmProjects\\Demo\\face_cascade.xml')
-        smile_classifier = cv.CascadeClassifier('C:\\Users\\suraj_kumar\\PycharmProjects\\Demo\\Haar_smile.xml')
-        times = []
+        face_classifier = cv.CascadeClassifier('cascade.xml')
+        smile_classifier = cv.CascadeClassifier('Haar_smile.xml')
+        times = 0
         smile_ratios = []
         sm_ratio = 0
         cap = cv.VideoCapture(0)
@@ -89,12 +90,16 @@ class QRScannerAndSmile:
                     cv.putText(img, 'Smile Scale : ' + sm_ratio, (10, 50), font, 1, (200, 255, 155), 2, cv.LINE_AA)
                     if float(sm_ratio) > 2.50:
                         sm_ratio = float(sm_ratio)
-                        cv.imwrite('C:/Users/suraj_kumar/Pictures/Saved Pictures/' + Id + '.jpg', img)
+                        cv.imwrite('C:/Users/My Lappy/Pictures/Saved Pictures/' + Id + '.jpg', img)
             cv.imshow('Face And Smile Detector', img)
             if cv.waitKey(1) & 0xFF == ord(' '):
                 break
         smile_ratios.append(float(sm_ratio))
-        times.append(datetime.now())
+        print(name)
+        print(Id)
+        times = datetime.now()
+        times = times.replace(microsecond=0)
+        insertdata(Id, name, times,'C:/Users/My Lappy/Pictures/Saved Pictures/' + Id + '.jpg')
         ds = {'ID': Id, 'Smile_Score': smile_ratios, 'Time': times}
         df = pd.DataFrame(ds)
         with open('smile_records.csv', 'a') as csvFile:
@@ -107,8 +112,9 @@ class QRScannerAndSmile:
         QRScannerAndSmile.qr()
         QRScannerAndSmile.faceandsmile()
 
-#obj = QRScannerAndSmile()
-#obj.call()
+
+obj = QRScannerAndSmile()
+obj.call()
 
 
 
